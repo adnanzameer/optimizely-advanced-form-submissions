@@ -1,0 +1,15 @@
+﻿.hydrated-file-label {
+    display: block;
+    margin-top: 4px;
+}
+
+    .hydrated-file-label a {
+        color: var(--kf-link-color, #005eb8);
+        text-decoration: underline;
+    }
+
+    .hydrated-file-label .Form__Readonly__Message {
+        color: #777;
+        font-size: 0.9em;
+        margin-left: 6px;
+    }
