@@ -14,7 +14,7 @@ public class AdvancedFormSubmissionsViewConfiguration : ViewConfiguration<FormCo
         Description = "Opens the enhanced form submissions dashboard.";
         IconClass = "epi-iconSharedBlock";
         ControllerType = "epi-cms/widget/IFrameController";
-        ViewType = "/FormSubmissions/index";
+        ViewType = "/AdvancedFormSubmissions/Index";
         Category = "content";
         SortOrder = 300;
     }

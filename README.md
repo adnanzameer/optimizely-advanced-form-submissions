@@ -1,107 +1,63 @@
-﻿# Master Language Switcher
+﻿## 🚀 Advanced Form Submissions Add-on for Optimizely Forms (CMS 12)
 
-The **Master Language Switcher** is an admin tool for Optimizely CMS 12 that allows editors and developers to **switch or convert master languages** of pages, blocks, and media directly at the database level.  
+This add-on is designed as an alternative of the standard Optimizely Forms submissions view with a more powerful, user-friendly dashboard optimized for efficiency and data management in Optimizely CMS 12 (.NET Core).
 
-It mirrors the legacy database-driven approach, while providing **UI feedback and batch processing** for safe and transparent execution.
+---
 
-[![.NET](https://img.shields.io/badge/.NET-6.0-purple.svg)](https://dotnet.microsoft.com/) 
-[![Optimizely CMS](https://img.shields.io/badge/Optimizely-CMS%2012-blue.svg)](https://world.optimizely.com/) 
-[![NuGet](https://img.shields.io/nuget/v/A2Z.ContentSerializer.svg)](https://nuget.optimizely.com/packages/A2Z.Optimizely.AdvancedFormSubmissions/)
+### ✨ What is this Add-on?
 
-## Features
+This add-on addresses common pain points with the default Optimizely Forms submissions view, such as the lack of user preference persistence and limited display options. It provides a new, centralized, and highly optimized dashboard built to make managing form data easier.
 
-- Promote a target language branch to **master**.
-- If a target language already exists, it becomes the master (**switch**).
-- If no target language exists, the current master is converted to the target (**convert**).
-- Processes:
-  - **Pages** (selected page and optionally descendants)
-  - **Blocks** placed in page content areas
-  - **Media** referenced within pages
-- Batch processing to reduce lock times and keep results consistent.
-- UI feedback with **detailed results**:
-  - Pages, blocks, and media separated
-  - Each item shows action (`Switched`, `Converted`, `Skipped`, `Failed`)
-  - Summary of totals
+### 🌟 Key Features for Editors and Administrators
 
-## Caution
+The new dashboard transforms your workflow for handling form data:
 
-This tool updates the **database directly**, bypassing normal CMS safeguards. Please read carefully before using:
+#### 1. Personalized and Persistent Dashboard
+* **Customizable Grid:** You have full control over the submissions table. You can **reorder** columns and **hide** any fields you don't need (e.g., system fields or irrelevant data).
+* **Settings Persistence:** Your layout choices (hidden columns, column order) are saved automatically (likely using local storage) and are specific to you, the user. The next time you open the dashboard, your preferred view will load instantly.
+* **Optimized Performance:** The underlying system is built for speed, using paged API calls to handle even very large forms efficiently.
 
-- Large operations may cause **timeouts** in the UI or API.
-- Running multiple operations at the same time can lead to **database locks**.
-- Switching many pages, blocks, or media items at once may temporarily impact **site performance**.
-- Always **back up the database** before running bulk operations.
-- We recommend running this tool during **off-peak hours**.
-- After switching, if you cannot see updated content in the frontend, it may be due to **CDN or application cache**.  
-  - Clear the CDN cache and restart the site if needed.  
-  - If you are using **Optimizely Search & Navigation**, don’t forget to **reindex the content** to reflect the new master language.
+#### 2. Advanced Data Filtering and Search
+The dashboard features dedicated controls for quickly narrowing down your submissions:
+* **Contextual Filtering:** Filter data by **Site**, **Language**, and **Form** block.
+* **Search by Content:** Use a dedicated search box to find specific entries across submission data.
+* **Date Range Filtering:** Easily select a **From Date** and **To Date** to view submissions within a specific period.
 
-## Installation 
+#### 3. Management and Export Tools
+* **Export Options:** Export your filtered submission data instantly into various formats:
+    * **CSV** (Comma Separated Values)
+    * **XML** (Extensible Markup Language)
+    * **JSON** (JavaScript Object Notation)
+* **Delete Submissions:** Securely delete selected or filtered form entries from the system.
+* **Direct Form Link:** If you need to view or edit the original form definition, a button provides a **one-click link** to the Form Container Block in the CMS editing view.
 
-To install the A2Z.Optimizely.AdvancedFormSubmissions, begin by adding the NuGet package using [Optimizely NuGet](https://nuget.optimizely.com/):
+#### 4. Enhanced Submission Data Display
+The add-on includes specialized handling to make certain data types more useful during review (seen in the Quick View modal):
+* **Clickable File Uploads:** For submissions that included a **File Upload Element**, the path to the uploaded file is automatically converted into a **clickable HTML link**. This allows you to immediately open or download the submitted document or image.
+* **Robust Selection Fields:** For `Selection Element Blocks` (like checkboxes, radio buttons, or dropdowns), the system more reliably identifies and displays the selected options during the quick view process, even if the form item's internal value and displayed caption differ.
 
-`
-dotnet add package A2Z.Optimizely.AdvancedFormSubmissions
-`
-## Usage
+---
 
-1. Navigate to **Admin > Tools > Master Language Switcher**.
-2. Select a page, language, and options.
-3. Click **Change Language**.
-4. Monitor results in the UI.
+### 🗺️ How to Access the New Dashboard
 
-![Master Language Switcher](img/master-language-switcher.png)
+The new dashboard is accessible from two primary locations in the Optimizely CMS user interface:
 
-## How It Works
+#### 1. Global Navigation Menu
+The most direct way to access the dashboard:
+* Click the **Global Menu** (the 'hamburger' icon) in the upper-left corner of the CMS.
+* Navigate to the new menu item labeled **"Form Submissions"**.
 
-1. Select a **root page** in the CMS tree.
-2. Choose the **target language** to promote.
-3. (Optional) Enable **recursive processing** to include all child pages.
-4. The tool:
-   - Switches/converts the page.
-   - Finds blocks placed in its content areas and switches/converts them.
-   - Finds media references and switches/converts them.
-5. Results are displayed in a table with colored rows for clarity.
+#### 2. From the Form Container Block
+For context-specific access to a specific form's data:
+* Navigate to a page containing your **Form Container Block** in the CMS Edit view.
+* Select the **Form Container Block**.
+* In the asset/properties panel, select the custom view named **"Advanced Form Submissions"**. This will open the dashboard pre-filtered to show only submissions for that form.
 
-![Startpage Before Conversion](img/before-conversion.png)
+---
 
-![Startpage Conversion](img/results-start-page.png)
+### ⚙️ For Technical Users & Developers
 
-![Startpage After Conversion](img/after-conversion.png)
-
-## Actions Explained
-
-Each processed content item results in one of the following actions:
-
-- **Switched** – Target language already exists → set as new master.
-- **Converted** – Current master moved to target language.
-- **Skipped (Already Master)** – Item already had the correct master.
-- **Failed** – Operation failed (e.g. timeout, missing language, or other DB issue).
-
-## UI Feedback
-
-- **Table view**: Lists each processed page, its blocks, and media with results.
-- **Summary**: Totals for pages, blocks, and media, including how many were switched, converted, skipped, or failed.
-- **Overlay loader**: Displays while the switch operation is running.
-
-## Development Notes
-
-- Database updates are performed with raw SQL against:
-  - `tblContent`
-  - `tblContentProperty`
-  - `tblContentLanguage`
-  - `tblWorkContent`
-
-## Screenshot (recursive)
-
-![Conversion Recursive](img/results-recursive.png)
-
-## Feature Requests
-
-If you have new ideas or feature requests that can make this tool even more useful for you or the community, please feel free to open a new issue at the following link.
-
-https://github.com/adnanzameer/A2Z.Optimizely.AdvancedFormSubmissions/issues
-
-## Changelog
-
-[Changelog](CHANGELOG.md)
+This add-on is implemented using standard Optimizely CMS 12 (.NET Core) extension points:
+* **Admin Tooling:** Uses `IMenuProvider` to register the new dashboard link (`CustomAdminMenuProvider.cs`).
+* **View Injection:** Utilizes `ViewConfiguration<FormContainerBlock>` (`AdvancedFormSubmissionsViewConfiguration.cs`) to inject the custom submissions view directly into the content editor experience for form blocks.
+* **Data Handling:** Overrides the default Optimizely Forms data hydration logic by registering custom `IFormPredefinedValueHandler` implementations (`*PredefinedValueHandler.cs`) and a custom resolver (`FormPredefinedValueHandlerResolver.cs`). This ensures specialized display logic (like the clickable file links) is correctly applied in the Quick View modal.

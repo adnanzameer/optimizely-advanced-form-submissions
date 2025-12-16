@@ -10,11 +10,29 @@ namespace AdvancedFormSubmissions.Helpers
         private readonly DynamicDataStore _store = DynamicDataStoreFactory.Instance.GetStore(typeof(FormSubmissionsSettings))
                                                    ?? DynamicDataStoreFactory.Instance.CreateStore(typeof(FormSubmissionsSettings));
 
-        public FormSubmissionsSettings Get(Guid formGuid, string language)
+        public FormSubmissionsSettings Get(
+            Guid formGuid,
+            string language,
+            string userId)
         {
-            return _store.Items<FormSubmissionsSettings>()
-                       .FirstOrDefault(s => s.FormGuid == formGuid && s.Language == language)
-                   ?? new FormSubmissionsSettings { FormGuid = formGuid, Language = language };
+            if (!string.IsNullOrWhiteSpace(userId))
+            {
+                var userSettings = _store.Items<FormSubmissionsSettings>()
+                    .FirstOrDefault(x =>
+                        x.FormGuid == formGuid &&
+                        x.Language == language &&
+                        x.UserId == userId);
+
+                if (userSettings != null)
+                    return userSettings;
+            }
+
+            return new FormSubmissionsSettings
+            {
+                FormGuid = formGuid,
+                Language = language,
+                UserId = userId
+            };
         }
 
         public void Save(FormSubmissionsSettings settings)
@@ -23,11 +41,20 @@ namespace AdvancedFormSubmissions.Helpers
             _store.Save(settings);
         }
 
-        public void Delete(Guid formGuid, string language)
+        public void Delete(
+            Guid formGuid,
+            string language,
+            string userId)
         {
-            var existing = Get(formGuid, language);
-            if (existing != null)
-                _store.Delete(existing.Id);
+            var items = _store.Items<FormSubmissionsSettings>()
+                .Where(x =>
+                    x.FormGuid == formGuid &&
+                    x.Language == language &&
+                    x.UserId == userId)
+                .ToList();
+
+            foreach (var item in items)
+                _store.Delete(item.Id);
         }
     }
 }

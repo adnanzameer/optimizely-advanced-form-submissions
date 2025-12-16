@@ -1,4 +1,5 @@
-﻿using sandbox.Extensions;
+﻿using AdvancedFormSubmissions;
+using sandbox.Extensions;
 using EPiServer.Cms.Shell;
 using EPiServer.Cms.UI.AspNetIdentity;
 using EPiServer.Scheduler;
@@ -30,6 +31,8 @@ public class Startup
             .AddAlloy()
             .AddAdminUserRegistration()
             .AddEmbeddedLocalization<Startup>();
+
+        services.AdvancedFormSubmissions();
 
         // Required by Wangkanai.Detection
         services.AddDetection();

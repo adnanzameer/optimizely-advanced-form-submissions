@@ -33,7 +33,7 @@ namespace AdvancedFormSubmissions.Controllers;
 
 [Authorize(Policy = Constants.PolicyName)]
 [Route("[controller]")]
-public class FormSubmissionsController(
+public class AdvancedFormSubmissionsController(
     ISubmissionStorage submissionStorage,
     IFormRepository formRepository,
     IContentRepository contentLoader,
@@ -84,7 +84,7 @@ public class FormSubmissionsController(
 
         ViewBag.PreselectedFormGuid = form?.Form?.FormGuid.ToString("N");
 
-        return View("~/plugins/FormSubmissions/Views/Index.cshtml");
+        return View();
     }
 
     [HttpGet]
@@ -291,8 +291,9 @@ public class FormSubmissionsController(
             if (!Guid.TryParseExact(formId, "N", out var formGuid))
                 return Json(new { status = false, message = "Invalid formId format." });
 
+            var userId = GetCurrentUserId();
             var repo = new FormSubmissionsSettingsRepository();
-            var settings = repo.Get(formGuid, language);
+            var settings = repo.Get(formGuid, language, userId);
 
             var hiddenCols = string.IsNullOrWhiteSpace(settings.HiddenColsJson)
                  ? new Dictionary<string, bool>()
@@ -330,8 +331,9 @@ public class FormSubmissionsController(
             if (!Guid.TryParseExact(formId, "N", out var formGuid))
                 return Json(new { status = false, message = "Invalid formId format." });
 
+            var userId = GetCurrentUserId();
             var repo = new FormSubmissionsSettingsRepository();
-            var settings = repo.Get(formGuid, language);
+            var settings = repo.Get(formGuid, language, userId);
 
             settings.HiddenColsJson = JsonSerializer.Serialize(payload.HiddenCols ?? new Dictionary<string, bool>());
             settings.ColumnOrderJson = JsonSerializer.Serialize(payload.ColumnOrder ?? []);
@@ -357,8 +359,9 @@ public class FormSubmissionsController(
             if (!Guid.TryParseExact(formId, "N", out var formGuid))
                 return Json(new { status = false, message = "Invalid formId format." });
 
+            var userId = GetCurrentUserId();
             var repo = new FormSubmissionsSettingsRepository();
-            repo.Delete(formGuid, language);
+            repo.Delete(formGuid, language, userId);
 
             return Json(new { status = true, message = "Form cache cleared." });
         }
@@ -442,9 +445,6 @@ public class FormSubmissionsController(
 
         if (principal == null)
             return false;
-
-        if (principal.IsInRole("CmsAdmins") || principal.IsInRole("WebAdmins"))
-            return true;
 
         var descriptor = contentSecurityRepository.Get(form.Content.ContentLink);
 
@@ -678,5 +678,10 @@ public class FormSubmissionsController(
         }
 
         return false;
+    }
+
+    private string GetCurrentUserId()
+    {
+        return User?.Identity?.Name;
     }
 }

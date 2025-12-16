@@ -1,4 +1,12 @@
-﻿using AdvancedFormSubmissions.Controllers;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using AdvancedFormSubmissions.Business;
+using AdvancedFormSubmissions.Controllers;
 using AdvancedFormSubmissions.Models;
 using EPiServer.Core;
 using EPiServer.Data.Dynamic;
@@ -14,13 +22,6 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace AdvancedFormSubmissions.Helpers;
 
@@ -28,7 +29,6 @@ public static class FormHtmlHelperExtensions
 {
     /// <summary>
     /// Hydrates and renders all form elements in a given step.
-    /// Only CmsAdmins / WebAdmins / Administrators see hydrated read-only values.
     /// </summary>
     public static void RenderElementsHydrated(
         this IHtmlHelper html,
@@ -43,8 +43,8 @@ public static class FormHtmlHelperExtensions
             return;
         }
 
-        // Restrict hydration to admin roles only
-        if (!UserHasAdminPolicy(httpContext).ConfigureAwait(false).GetAwaiter().GetResult())
+        // Restrict hydration
+        if (!UserHasAccess(httpContext).ConfigureAwait(false).GetAwaiter().GetResult())
         {
             html.RenderElementsInStep(stepIndex, elements);
             return;
@@ -53,11 +53,14 @@ public static class FormHtmlHelperExtensions
         // Get hydrated values if a submissionId exists
         var hydratedValues = GetHydratedValuesFromRequest(httpContext, formContainerBlock);
 
+        var services = httpContext.RequestServices;
+        var handlerResolver = services.GetRequiredService<IFormPredefinedValueHandlerResolver>();
+
         // If no submissionId or no values, reset all predefined fields to blank
         if (hydratedValues == null || !hydratedValues.Any())
         {
             var resetElements = elements
-                .Select(ClearPredefinedValues)
+                .Select(e => ClearPredefinedValues(e, handlerResolver))
                 .ToList();
 
             html.RenderElementsInStep(stepIndex, resetElements);
@@ -66,7 +69,7 @@ public static class FormHtmlHelperExtensions
 
         // Clone and inject hydrated values
         var writableElements = elements
-            .Select(e => CloneAndHydrate(e, hydratedValues))
+            .Select(e => CloneAndHydrate(e, hydratedValues, handlerResolver))
             .ToList();
 
         html.RenderElementsInStep(stepIndex, writableElements);
@@ -84,8 +87,8 @@ public static class FormHtmlHelperExtensions
 
         // Build link + script tags
 
-        var styleCss = Paths.ToClientResource(typeof(FormSubmissionsController), "ClientResources/styles/form.css");
-        var scriptJs = Paths.ToClientResource(typeof(FormSubmissionsController), "ClientResources/styles/form.js");
+        var styleCss = Paths.ToClientResource(typeof(AdvancedFormSubmissionsController), "ClientResources/styles/form.css");
+        var scriptJs = Paths.ToClientResource(typeof(AdvancedFormSubmissionsController), "ClientResources/styles/form.js");
 
         var cssTag = $"<link rel=\"stylesheet\" href=\"{styleCss}\" />";
         var jsTag = $"<script src=\"{scriptJs}\" type=\"module\" data-form-id=\"{formId}\"></script>";
@@ -93,7 +96,7 @@ public static class FormHtmlHelperExtensions
         return new HtmlString($"{cssTag}\n{jsTag}");
     }
 
-    private static IFormElement CloneAndHydrate(IFormElement element, IDictionary<string, object> hydratedValues)
+    public static IFormElement CloneAndHydrate(IFormElement element, IDictionary<string, object> hydratedValues, IFormPredefinedValueHandlerResolver resolver)
     {
         if (element.SourceContent is not ElementBlockBase block)
             return element;
@@ -103,13 +106,13 @@ public static class FormHtmlHelperExtensions
 
         var value = GetHydratedValue(block, hydratedValues);
         if (!string.IsNullOrWhiteSpace(value))
-            SetPredefinedValue(writable, value);
+            SetPredefinedValue(writable, value, resolver);
 
         element.SourceContent = writable as IContent;
         return element;
     }
 
-    private static bool ShouldDisableForm(this IHtmlHelper html, FormContainerBlock form)
+    public static bool ShouldDisableForm(this IHtmlHelper html, FormContainerBlock form)
     {
         var httpContext = html.ViewContext?.HttpContext;
         if (httpContext == null)
@@ -128,7 +131,7 @@ public static class FormHtmlHelperExtensions
         return bag != null && bag.Any();
     }
 
-    private static IDictionary<string, object> GetHydratedValuesFromRequest(
+    public static IDictionary<string, object> GetHydratedValuesFromRequest(
         HttpContext httpContext,
         FormContainerBlock formContainerBlock)
     {
@@ -144,6 +147,39 @@ public static class FormHtmlHelperExtensions
             return null;
 
         return GetHydratedValues(httpContext, formContainerBlock.Form.FormGuid, submissionId, lang);
+    }
+
+    public static IFormElement ClearPredefinedValues(
+        IFormElement element,
+        IFormPredefinedValueHandlerResolver resolver)
+    {
+        if (element.SourceContent is not ElementBlockBase block)
+            return element;
+
+        if (block.CreateWritableClone() is not ElementBlockBase writable)
+            return element;
+
+        resolver.Resolve(writable)?.Clear(writable);
+
+        element.SourceContent = writable as IContent;
+        return element;
+    }
+
+    public static void SetPredefinedValue(
+        ElementBlockBase writable,
+        string value,
+        IFormPredefinedValueHandlerResolver resolver)
+    {
+        resolver.Resolve(writable)?.SetValue(writable, value);
+    }
+
+    public static async Task<bool> UserHasAccess(HttpContext httpContext)
+    {
+        var services = httpContext.RequestServices;
+        var auth = services.GetRequiredService<IAuthorizationService>();
+        var user = httpContext.User;
+        var result = await auth.AuthorizeAsync(user, null, Constants.PolicyName);
+        return result.Succeeded;
     }
 
     /// <summary>
@@ -217,151 +253,5 @@ public static class FormHtmlHelperExtensions
             return v2?.ToString();
 
         return null;
-    }
-
-    private static IFormElement ClearPredefinedValues(IFormElement element)
-    {
-        if (element.SourceContent is not ElementBlockBase block)
-            return element;
-
-        if (block.CreateWritableClone() is not ElementBlockBase writable)
-            return element;
-
-        // Reset predefined value
-        var prop = writable.GetType().GetProperty("PredefinedValue");
-        if (prop != null && prop.CanWrite)
-        {
-            prop.SetValue(writable, string.Empty);
-        }
-
-        // Reset selection or uploaded file state
-        switch (writable)
-        {
-            case SelectionElementBlock sel:
-                sel.Items = sel.Items?.Select(i =>
-                {
-                    i.Checked = false;
-                    return i;
-                }).ToList();
-                sel.PlaceHolder = "";
-                break;
-            case FileUploadElementBlock file:
-                file.Description = string.Empty;
-                break;
-        }
-
-        element.SourceContent = writable as IContent;
-        return element;
-    }
-
-    private static void SetPredefinedValue(ElementBlockBase writable, string value)
-    {
-        switch (writable)
-        {
-            case TextboxElementBlock tb:
-                tb.PredefinedValue = value;
-                break;
-            case SelectionElementBlock sel:
-                if (sel.Items != null && sel.Items.Any())
-                {
-                    var selectedValues = value.Split([',', ';'], StringSplitOptions.RemoveEmptyEntries)
-                        .Select(v => v.Trim())
-                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-                    var updatedItems = sel.Items
-                        .Select(item => new OptionItem()
-                        {
-                            Caption = item.Caption,
-                            Value = item.Value,
-                            Checked = selectedValues.Contains(item.Value)
-                                      || selectedValues.Contains(item.Caption)
-                        })
-                        .ToList();
-                    var selectedItem = updatedItems.FirstOrDefault(x => x.Checked.HasValue && x.Checked.Value);
-                    sel.PlaceHolder = selectedItem != null ? selectedItem.Caption : value;
-
-                    sel.Items = updatedItems;
-                }
-
-                sel.PredefinedValue = value;
-                break;
-            case NumberElementBlock num:
-                num.PredefinedValue = value;
-                break;
-            case FileUploadElementBlock file:
-                if (!string.IsNullOrWhiteSpace(value))
-                {
-                    var entries = value
-                        .Split('|', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(v => v.Trim())
-                        .ToList();
-
-                    var linkList = new List<string>();
-
-                    foreach (var entry in entries)
-                    {
-                        // Skip invalid entries
-                        if (!entry.Contains("/"))
-                        {
-                            linkList.Add(System.Net.WebUtility.HtmlEncode(entry));
-                            continue;
-                        }
-
-                        // Split at first #@
-                        var idx = entry.IndexOf("#@", StringComparison.Ordinal);
-                        string urlPart;
-                        string namePart;
-
-                        if (idx >= 0)
-                        {
-                            urlPart = entry[..idx].Trim();
-                            namePart = entry[(idx + 2)..].Trim();
-                        }
-                        else
-                        {
-                            // No #@, fallback to filename
-                            urlPart = entry.Trim();
-                            namePart = Path.GetFileName(urlPart);
-                        }
-
-                        // Clean trailing ] or whitespaces
-                        urlPart = urlPart.TrimEnd(' ', ']');
-                        namePart = namePart.TrimEnd(' ', ']');
-
-                        var safeUrl = System.Net.WebUtility.HtmlEncode(urlPart);
-                        var safeName = System.Net.WebUtility.HtmlEncode(string.IsNullOrWhiteSpace(namePart)
-                            ? Path.GetFileName(urlPart)
-                            : namePart);
-
-                        linkList.Add($"<a href=\"{safeUrl}\" target=\"_blank\" rel=\"noopener\">{safeName}</a>");
-                    }
-
-                    // Line-break output
-                    file.Description = string.Join("<br>", linkList);
-
-                    file.GetType().GetProperty("Attributes")?.SetValue(
-                        file,
-                        new Dictionary<string, string> { { "class", "hydrated-file" } }
-                    );
-                }
-                break;
-            case UrlElementBlock url:
-                url.PredefinedValue = value;
-                break;
-            default:
-                var prop = writable.GetType().GetProperty("PredefinedValue");
-                if (prop != null && prop.CanWrite)
-                    prop.SetValue(writable, value);
-                break;
-        }
-    }
-
-    private static async Task<bool> UserHasAdminPolicy(HttpContext httpContext)
-    {
-        var services = httpContext.RequestServices;
-        var auth = services.GetRequiredService<IAuthorizationService>();
-        var user = httpContext.User;
-        var result = await auth.AuthorizeAsync(user, null, Constants.PolicyName);
-        return result.Succeeded;
     }
 }

@@ -1,31 +1,32 @@
-﻿using System;
-using System.Linq;
 using AdvancedFormSubmissions.Helpers.Url;
-using AdvancedFormSubmissions.Models;
 using EPiServer.Authorization;
 using EPiServer.Forms.Core.Data;
-using EPiServer.Framework;
-using EPiServer.Framework.Initialization;
-using EPiServer.ServiceLocation;
 using EPiServer.Shell.Modules;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Linq;
+using AdvancedFormSubmissions.Models;
+using Microsoft.AspNetCore.Mvc.Razor;
 
 namespace AdvancedFormSubmissions
 {
-    [InitializableModule]
-    [ModuleDependency(typeof(EPiServer.Web.InitializationModule))]
-    public class InitializeServices : IConfigurableModule
+    public static class ServiceCollectionExtensions
     {
         private static readonly Action<AuthorizationPolicyBuilder> DefaultPolicy = p => p.RequireRole(Roles.Administrators, Roles.WebAdmins, Roles.CmsAdmins);
 
-        void IConfigurableModule.ConfigureContainer(ServiceConfigurationContext context)
+        public static IServiceCollection AdvancedFormSubmissions(this IServiceCollection services)
         {
-            context.Services.AddScoped<IUrlService, UrlBuilder>();
-            context.Services.AddScoped<ISubmissionStorage, DdsPermanentStorage>();
+            return AdvancedFormSubmissions(services, DefaultPolicy);
+        }
 
-            context.Services.Configure<ProtectedModuleOptions>(
+        public static IServiceCollection AdvancedFormSubmissions(this IServiceCollection services, Action<AuthorizationPolicyBuilder> configurePolicy)
+        {
+            services.AddScoped<IUrlService, UrlBuilder>();
+            services.AddScoped<ISubmissionStorage, DdsPermanentStorage>();
+
+            services.Configure<ProtectedModuleOptions>(
                 pm =>
                 {
                     if (!pm.Items.Any(i => i.Name.Equals(Constants.ModuleName, StringComparison.OrdinalIgnoreCase)))
@@ -34,7 +35,7 @@ namespace AdvancedFormSubmissions
                     }
                 });
 
-            context.Services.Configure(
+            services.Configure(
                 (Action<RazorViewEngineOptions>)(ro =>
                 {
                     if (ro.ViewLocationExpanders.Any(
@@ -45,18 +46,13 @@ namespace AdvancedFormSubmissions
                         new ModuleLocationExpander());
                 }));
 
-            context.Services.AddAuthorization(options =>
+
+            services.AddAuthorization(options =>
             {
-                options.AddPolicy(Constants.PolicyName, DefaultPolicy);
+                options.AddPolicy(Constants.PolicyName, configurePolicy);
             });
-        }
 
-        void IInitializableModule.Initialize(InitializationEngine context)
-        {
-        }
-
-        void IInitializableModule.Uninitialize(InitializationEngine context)
-        {
+            return services;
         }
     }
 }

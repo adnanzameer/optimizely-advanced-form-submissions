@@ -10,6 +10,7 @@ namespace AdvancedFormSubmissions.Models
     public class FormSubmissionsSettings
     {
         public Identity Id { get; set; } = Identity.NewIdentity();
+        public string UserId { get; set; }
         public Guid FormGuid { get; set; }
         public string Language { get; set; }
         public string HiddenColsJson { get; set; } = "{}";

@@ -12,7 +12,7 @@ namespace AdvancedFormSubmissions
             var link = new UrlMenuItem(
                 "Form Submissions",
                 MenuPaths.Global + "/cms/submissions",
-                "/FormSubmissions/Index")
+                "/AdvancedFormSubmissions/Index")
             {
                 SortIndex = 100,
                 AuthorizationPolicy = Constants.PolicyName

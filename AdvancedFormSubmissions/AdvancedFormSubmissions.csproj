@@ -8,14 +8,14 @@
 	<OutputPath>bin\</OutputPath>
 	<PackageId>A2Z.Optimizely.AdvancedFormSubmissions</PackageId>
 	<Version>1.0.0.0</Version>
-	<Description>A tool for changing the master language of pages in Optimizely 12, with recursive support and seamless CMS integration.</Description>
+	<Description>An alternative, feature-rich submissions dashboard for Optimizely Forms (CMS 12) with enhanced submission viewing, hydration, export, persistent column configuration, advanced filtering, and extensible predefined value handling.</Description>
 	<Authors>Adnan Zameer</Authors>
 	<IsPackable>True</IsPackable>
-	<PackageReleaseNotes>https://github.com/adnanzameer/A2Z.Optimizely.AdvancedFormSubmissions/blob/master/CHANGELOG.md</PackageReleaseNotes>
-	<PackageProjectUrl>https://github.com/adnanzameer/A2Z.Optimizely.AdvancedFormSubmissions</PackageProjectUrl>
-	<RepositoryUrl>https://github.com/adnanzameer/A2Z.Optimizely.AdvancedFormSubmissions</RepositoryUrl>
+	<PackageReleaseNotes>https://github.com/adnanzameer/optimizely-advanced-form-submissions/blob/master/CHANGELOG.md</PackageReleaseNotes>
+	<PackageProjectUrl>https://github.com/adnanzameer/optimizely-advanced-form-submissions</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/adnanzameer/optimizely-advanced-form-submissions</RepositoryUrl>
 	<RepositoryType>Git</RepositoryType>
-	<PackageTags>Optimizely Master Language Switcher Page Localization Language Conversion A2Z</PackageTags>
+	<PackageTags>Optimizely CMS12 Forms FormSubmissions AdminDashboard FormData Hydration Export CSV JSON XML DeveloperTools A2Z</PackageTags>
 	<NuspecFile>AdvancedFormSubmissions.nuspec</NuspecFile>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<PackageIcon>icon.png</PackageIcon>
