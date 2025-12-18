@@ -11,7 +11,9 @@ public class NumberPredefinedValueHandler : IFormPredefinedValueHandler
     public int Priority => 50;
 
     public bool CanHandle(ElementBlockBase element)
-        => element is NumberElementBlock;
+    {
+        return element is NumberElementBlock;
+    }
 
     public void Clear(ElementBlockBase element)
     {

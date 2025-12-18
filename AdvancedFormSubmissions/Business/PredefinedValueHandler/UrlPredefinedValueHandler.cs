@@ -11,7 +11,9 @@ public class UrlPredefinedValueHandler : IFormPredefinedValueHandler
     public int Priority => 50;
 
     public bool CanHandle(ElementBlockBase element)
-        => element is UrlElementBlock;
+    {
+        return element is UrlElementBlock;
+    }
 
     public void Clear(ElementBlockBase element)
     {

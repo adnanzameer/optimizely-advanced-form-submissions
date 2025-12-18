@@ -9,7 +9,10 @@ public class DefaultPredefinedValueHandler : IFormPredefinedValueHandler
 {
     public int Priority => -1000;
 
-    public bool CanHandle(ElementBlockBase element) => true;
+    public bool CanHandle(ElementBlockBase element)
+    {
+        return true;
+    }
 
     public void Clear(ElementBlockBase element)
     {

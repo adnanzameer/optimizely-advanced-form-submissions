@@ -1,12 +1,12 @@
-﻿using AdvancedFormSubmissions.Models;
-using EPiServer.Forms.Core;
-using EPiServer.Forms.Implementation.Elements;
-using EPiServer.ServiceLocation;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using AdvancedFormSubmissions.Models;
+using EPiServer.Forms.Core;
+using EPiServer.Forms.Implementation.Elements;
+using EPiServer.ServiceLocation;
 
 namespace AdvancedFormSubmissions.Business.PredefinedValueHandler;
 
@@ -16,7 +16,9 @@ public class FileUploadPredefinedValueHandler : IFormPredefinedValueHandler
     public int Priority => 200;
 
     public bool CanHandle(ElementBlockBase element)
-        => element is FileUploadElementBlock;
+    {
+        return element is FileUploadElementBlock;
+    }
 
     public void Clear(ElementBlockBase element)
     {
@@ -57,8 +59,8 @@ public class FileUploadPredefinedValueHandler : IFormPredefinedValueHandler
             url = url.TrimEnd(' ', ']');
             name = name.TrimEnd(' ', ']');
 
-            var safeUrl = System.Net.WebUtility.HtmlEncode(url);
-            var safeName = System.Net.WebUtility.HtmlEncode(
+            var safeUrl = WebUtility.HtmlEncode(url);
+            var safeName = WebUtility.HtmlEncode(
                 string.IsNullOrWhiteSpace(name) ? Path.GetFileName(url) : name
             );
 

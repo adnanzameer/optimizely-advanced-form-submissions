@@ -1,10 +1,10 @@
-﻿using AdvancedFormSubmissions.Models;
+﻿using System;
+using System.Linq;
+using AdvancedFormSubmissions.Models;
 using EPiServer.Forms.Core;
 using EPiServer.Forms.EditView.Models.Internal;
 using EPiServer.Forms.Implementation.Elements;
 using EPiServer.ServiceLocation;
-using System;
-using System.Linq;
 
 namespace AdvancedFormSubmissions.Business.PredefinedValueHandler;
 
@@ -14,7 +14,9 @@ public class SelectionPredefinedValueHandler : IFormPredefinedValueHandler
     public int Priority => 100;
 
     public bool CanHandle(ElementBlockBase element)
-        => element is SelectionElementBlock;
+    {
+        return element is SelectionElementBlock;
+    }
 
     public void Clear(ElementBlockBase element)
     {

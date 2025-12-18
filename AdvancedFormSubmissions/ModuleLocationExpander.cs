@@ -2,21 +2,20 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Razor;
 
-namespace AdvancedFormSubmissions
-{
-    public class ModuleLocationExpander: IViewLocationExpander
-    {
-        public IEnumerable<string> ExpandViewLocations(
-            ViewLocationExpanderContext context,
-            IEnumerable<string> viewLocations)
-        {
-            //{2} is area, {1} is controller,{0} is the action
-            var locations = new[] { "/{1}Views/Views/{0}.cshtml" };
-            return locations.Union(viewLocations);
-        }
+namespace AdvancedFormSubmissions;
 
-        public void PopulateValues(ViewLocationExpanderContext context)
-        {
-        }
+public class ModuleLocationExpander: IViewLocationExpander
+{
+    public IEnumerable<string> ExpandViewLocations(
+        ViewLocationExpanderContext context,
+        IEnumerable<string> viewLocations)
+    {
+        //{2} is area, {1} is controller,{0} is the action
+        var locations = new[] { "/{1}Views/Views/{0}.cshtml" };
+        return locations.Union(viewLocations);
+    }
+
+    public void PopulateValues(ViewLocationExpanderContext context)
+    {
     }
 }

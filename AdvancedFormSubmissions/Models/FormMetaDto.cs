@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace AdvancedFormSubmissions.Models
+namespace AdvancedFormSubmissions.Models;
+
+public class FormMetaDto
 {
-    public class FormMetaDto
-    {
-        public int ContentId { get; set; }
-        public Guid ContentGUID { get; set; }
-        public string Name { get; set; }
-    }
+    public int ContentId { get; set; }
+    public Guid ContentGUID { get; set; }
+    public string Name { get; set; }
 }
