@@ -27,52 +27,61 @@ namespace AdvancedFormSubmissions.Helpers;
 
 public static class FormHtmlHelperExtensions
 {
-    /// <summary>
-    /// Hydrates and renders all form elements in a given step.
-    /// </summary>
+    public delegate void FormElementsRenderer(
+        IHtmlHelper html,
+        int stepIndex,
+        IEnumerable<IFormElement> elements);
+
     public static void RenderElementsHydrated(
         this IHtmlHelper html,
         int stepIndex,
         IEnumerable<IFormElement> elements,
-    FormContainerBlock formContainerBlock)
+        FormContainerBlock formContainerBlock,
+        FormElementsRenderer renderer = null)
     {
+        renderer ??= DefaultRenderer;
+
         var httpContext = html.ViewContext?.HttpContext;
         if (httpContext == null)
         {
-            html.RenderElementsInStep(stepIndex, elements);
+            renderer(html, stepIndex, elements);
             return;
         }
 
-        // Restrict hydration
         if (!UserHasAccess(httpContext).ConfigureAwait(false).GetAwaiter().GetResult())
         {
-            html.RenderElementsInStep(stepIndex, elements);
+            renderer(html, stepIndex, elements);
             return;
         }
 
-        // Get hydrated values if a submissionId exists
         var hydratedValues = GetHydratedValuesFromRequest(httpContext, formContainerBlock);
-
         var services = httpContext.RequestServices;
         var handlerResolver = services.GetRequiredService<IFormPredefinedValueHandlerResolver>();
 
-        // If no submissionId or no values, reset all predefined fields to blank
         if (hydratedValues == null || !hydratedValues.Any())
         {
             var resetElements = elements
                 .Select(e => ClearPredefinedValues(e, handlerResolver))
                 .ToList();
 
-            html.RenderElementsInStep(stepIndex, resetElements);
+            renderer(html, stepIndex, resetElements);
             return;
         }
 
-        // Clone and inject hydrated values
-        var writableElements = elements
+        var hydratedElements = elements
             .Select(e => CloneAndHydrate(e, hydratedValues, handlerResolver))
             .ToList();
 
-        html.RenderElementsInStep(stepIndex, writableElements);
+        renderer(html, stepIndex, hydratedElements);
+    }
+
+
+    private static void DefaultRenderer(
+        IHtmlHelper html,
+        int stepIndex,
+        IEnumerable<IFormElement> elements)
+    {
+        html.RenderElementsInStep(stepIndex, elements);
     }
 
     public static IHtmlContent RenderHydratedFormAssets(this IHtmlHelper html, FormContainerBlock form)
@@ -87,16 +96,16 @@ public static class FormHtmlHelperExtensions
 
         // Build link + script tags
 
-        var styleCss = Paths.ToClientResource(typeof(AdvancedFormSubmissionsController), "ClientResources/styles/form.css");
-        var scriptJs = Paths.ToClientResource(typeof(AdvancedFormSubmissionsController), "ClientResources/styles/form.js");
+        const string styleCss = "/_content/AdvancedFormSubmissions/styles/form.css";
+        const string scriptJs = "/_content/AdvancedFormSubmissions/scripts/form.js";
 
-        var cssTag = $"<link rel=\"stylesheet\" href=\"{styleCss}\" />";
+        const string cssTag = $"<link rel=\"stylesheet\" href=\"{styleCss}\" />";
         var jsTag = $"<script src=\"{scriptJs}\" type=\"module\" data-form-id=\"{formId}\"></script>";
 
         return new HtmlString($"{cssTag}\n{jsTag}");
     }
 
-    public static IFormElement CloneAndHydrate(IFormElement element, IDictionary<string, object> hydratedValues, IFormPredefinedValueHandlerResolver resolver)
+    private static IFormElement CloneAndHydrate(IFormElement element, IDictionary<string, object> hydratedValues, IFormPredefinedValueHandlerResolver resolver)
     {
         if (element.SourceContent is not ElementBlockBase block)
             return element;
@@ -112,7 +121,7 @@ public static class FormHtmlHelperExtensions
         return element;
     }
 
-    public static bool ShouldDisableForm(this IHtmlHelper html, FormContainerBlock form)
+    private static bool ShouldDisableForm(this IHtmlHelper html, FormContainerBlock form)
     {
         var httpContext = html.ViewContext?.HttpContext;
         if (httpContext == null)
@@ -131,7 +140,7 @@ public static class FormHtmlHelperExtensions
         return bag != null && bag.Any();
     }
 
-    public static IDictionary<string, object> GetHydratedValuesFromRequest(
+    private static IDictionary<string, object> GetHydratedValuesFromRequest(
         HttpContext httpContext,
         FormContainerBlock formContainerBlock)
     {
@@ -149,7 +158,7 @@ public static class FormHtmlHelperExtensions
         return GetHydratedValues(httpContext, formContainerBlock.Form.FormGuid, submissionId, lang);
     }
 
-    public static IFormElement ClearPredefinedValues(
+    private static IFormElement ClearPredefinedValues(
         IFormElement element,
         IFormPredefinedValueHandlerResolver resolver)
     {
@@ -165,7 +174,7 @@ public static class FormHtmlHelperExtensions
         return element;
     }
 
-    public static void SetPredefinedValue(
+    private static void SetPredefinedValue(
         ElementBlockBase writable,
         string value,
         IFormPredefinedValueHandlerResolver resolver)
@@ -173,7 +182,7 @@ public static class FormHtmlHelperExtensions
         resolver.Resolve(writable)?.SetValue(writable, value);
     }
 
-    public static async Task<bool> UserHasAccess(HttpContext httpContext)
+    private static async Task<bool> UserHasAccess(HttpContext httpContext)
     {
         var services = httpContext.RequestServices;
         var auth = services.GetRequiredService<IAuthorizationService>();

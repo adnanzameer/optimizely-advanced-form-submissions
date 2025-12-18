@@ -19,6 +19,7 @@
 	<NuspecFile>AdvancedFormSubmissions.nuspec</NuspecFile>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<PackageIcon>icon.png</PackageIcon>
+	<StaticWebAssetBasePath>/_content/</StaticWebAssetBasePath>
   </PropertyGroup>
   <ItemGroup>
 	<Content Remove="module.config" />
@@ -28,6 +29,10 @@
   </ItemGroup>
   <ItemGroup>
 	<None Include="module.config" />
+	<None Include="wwwroot\ClientResources\scripts\dashboard.js" />
+	<None Include="wwwroot\ClientResources\scripts\form.js" />
+	<None Include="wwwroot\ClientResources\styles\dashboard.css" />
+	<None Include="wwwroot\ClientResources\styles\form.css" />
   </ItemGroup>
   <ItemGroup>
 	<PackageReference Include="EPiServer.CMS" Version="12.9.0" />

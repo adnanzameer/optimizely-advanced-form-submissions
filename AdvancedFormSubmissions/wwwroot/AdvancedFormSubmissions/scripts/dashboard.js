@@ -1,5 +1,5 @@
 ﻿(() => {
-    const baseUrl = "/FormSubmissions";
+    const baseUrl = "/AdvancedFormSubmissions";
     let currentFormId = "";
     let currentPage = 1;
     let pageSize = 50;
@@ -273,7 +273,8 @@
             <th title="Overview" style="width:50px;">Overview</th>` +
 
             columns.map(col => {
-                if (hiddenCols[col]) return "";
+                if (hiddenCols[col])
+                    return "";
 
                 if (col === "Finalized") {
                     return `<th title="${escapeHtml(col)}" style="width:50px">${escapeHtml(col)}</th>`;
