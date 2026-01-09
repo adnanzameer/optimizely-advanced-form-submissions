@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AdvancedFormSubmissions.Business;
+﻿using AdvancedFormSubmissions.Business;
 using AdvancedFormSubmissions.Models;
 using EPiServer.Core;
 using EPiServer.Data.Dynamic;
@@ -11,11 +7,16 @@ using EPiServer.Forms.Core.Data;
 using EPiServer.Forms.Core.Models;
 using EPiServer.Forms.Helpers.Internal;
 using EPiServer.Forms.Implementation.Elements;
+using EPiServer.Forms.Implementation.Elements.BaseClasses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace AdvancedFormSubmissions.Helpers;
 
@@ -159,6 +160,9 @@ public static class FormHtmlHelperExtensions
         if (element.SourceContent is not ElementBlockBase block)
             return element;
 
+        if (block is HiddenElementBlockBase)
+            return element;
+
         if (block.CreateWritableClone() is not ElementBlockBase writable)
             return element;
 
@@ -173,6 +177,9 @@ public static class FormHtmlHelperExtensions
         string value,
         IFormPredefinedValueHandlerResolver resolver)
     {
+        if (writable is HiddenElementBlockBase)
+            return;
+
         resolver.Resolve(writable)?.SetValue(writable, value);
     }
 

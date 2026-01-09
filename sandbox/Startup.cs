@@ -32,7 +32,7 @@ public class Startup
             .AddAdminUserRegistration()
             .AddEmbeddedLocalization<Startup>();
 
-        services.AdvancedFormSubmissions();
+        services.AddAdvancedFormSubmissions();
 
         // Required by Wangkanai.Detection
         services.AddDetection();

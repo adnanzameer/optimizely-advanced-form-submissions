@@ -1,7 +1,9 @@
 ﻿using AdvancedFormSubmissions.Models;
+using EPiServer;
 using EPiServer.Forms.Core;
 using EPiServer.Forms.Implementation.Elements;
 using EPiServer.ServiceLocation;
+using System.Globalization;
 
 namespace AdvancedFormSubmissions.Business.PredefinedValueHandler;
 
@@ -17,7 +19,9 @@ public class UrlPredefinedValueHandler : IFormPredefinedValueHandler
 
     public void Clear(ElementBlockBase element)
     {
-        ((UrlElementBlock)element).PredefinedValue = string.Empty;
+        var contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
+        contentLoader.TryGet(element.Content.ContentGuid, new CultureInfo(element.FormElement.Form.Language), out UrlElementBlock elementBlock);
+        ((UrlElementBlock)element).PredefinedValue = elementBlock != null ? elementBlock.PredefinedValue : string.Empty;
     }
 
     public void SetValue(ElementBlockBase element, string value)

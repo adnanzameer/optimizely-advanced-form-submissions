@@ -1,10 +1,12 @@
-﻿using System;
-using System.Linq;
-using AdvancedFormSubmissions.Models;
+﻿using AdvancedFormSubmissions.Models;
+using EPiServer;
 using EPiServer.Forms.Core;
 using EPiServer.Forms.EditView.Models.Internal;
 using EPiServer.Forms.Implementation.Elements;
 using EPiServer.ServiceLocation;
+using System;
+using System.Globalization;
+using System.Linq;
 
 namespace AdvancedFormSubmissions.Business.PredefinedValueHandler;
 
@@ -26,8 +28,11 @@ public class SelectionPredefinedValueHandler : IFormPredefinedValueHandler
             foreach (var item in sel.Items)
                 item.Checked = false;
 
-        sel.PlaceHolder = string.Empty;
-        sel.PredefinedValue = string.Empty;
+        var contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
+        contentLoader.TryGet(element.Content.ContentGuid, new CultureInfo(element.FormElement.Form.Language), out SelectionElementBlock elementBlock);
+        sel.PredefinedValue = elementBlock != null ? elementBlock.PredefinedValue : string.Empty;
+        sel.PlaceHolder = elementBlock != null ? elementBlock.PlaceHolder : string.Empty;
+
     }
 
     public void SetValue(ElementBlockBase element, string value)

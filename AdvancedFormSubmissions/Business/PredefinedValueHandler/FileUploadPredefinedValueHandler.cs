@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using AdvancedFormSubmissions.Models;
+﻿using AdvancedFormSubmissions.Models;
+using EPiServer;
 using EPiServer.Forms.Core;
 using EPiServer.Forms.Implementation.Elements;
 using EPiServer.ServiceLocation;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net;
 
 namespace AdvancedFormSubmissions.Business.PredefinedValueHandler;
 
@@ -23,7 +25,10 @@ public class FileUploadPredefinedValueHandler : IFormPredefinedValueHandler
     public void Clear(ElementBlockBase element)
     {
         var file = (FileUploadElementBlock)element;
-        file.Description = string.Empty;
+
+        var contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
+        contentLoader.TryGet(element.Content.ContentGuid, new CultureInfo(element.FormElement.Form.Language), out FileUploadElementBlock elementBlock);
+        file.Description = elementBlock != null ? elementBlock.Description : string.Empty;
     }
 
     public void SetValue(ElementBlockBase element, string value)

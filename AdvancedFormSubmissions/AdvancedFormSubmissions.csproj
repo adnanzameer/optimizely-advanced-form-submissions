@@ -6,40 +6,33 @@
 	<TargetFrameworks>net8.0;</TargetFrameworks>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<OutputPath>bin\</OutputPath>
+
 	<PackageId>A2Z.Optimizely.AdvancedFormSubmissions</PackageId>
 	<Version>1.0.0.0</Version>
+	<Title>Advanced Form Submissions</Title>
 	<Description>An alternative, feature-rich submissions dashboard for Optimizely Forms (CMS 12) with enhanced submission viewing, hydration, export, persistent column configuration, advanced filtering, and extensible predefined value handling.</Description>
 	<Authors>Adnan Zameer</Authors>
 	<IsPackable>True</IsPackable>
 	<PackageReleaseNotes>https://github.com/adnanzameer/optimizely-advanced-form-submissions/blob/master/CHANGELOG.md</PackageReleaseNotes>
 	<PackageProjectUrl>https://github.com/adnanzameer/optimizely-advanced-form-submissions</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/adnanzameer/optimizely-advanced-form-submissions</RepositoryUrl>
-	<RepositoryType>Git</RepositoryType>
+	<RepositoryType>git</RepositoryType>
 	<PackageTags>Optimizely CMS12 Forms FormSubmissions AdminDashboard FormData Hydration Export CSV JSON XML DeveloperTools A2Z</PackageTags>
-	<NuspecFile>AdvancedFormSubmissions.nuspec</NuspecFile>
+
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<PackageIcon>icon.png</PackageIcon>
 	<StaticWebAssetBasePath>/_content/</StaticWebAssetBasePath>
   </PropertyGroup>
   <ItemGroup>
-	<Content Remove="module.config" />
 	<Content Include="readme.txt">
 	  <PackagePath>readme.txt</PackagePath>
 	</Content>
-  </ItemGroup>
-  <ItemGroup>
 	<None Include="module.config" />
-	<None Include="wwwroot\ClientResources\scripts\dashboard.js" />
-	<None Include="wwwroot\ClientResources\scripts\form.js" />
-	<None Include="wwwroot\ClientResources\styles\dashboard.css" />
-	<None Include="wwwroot\ClientResources\styles\form.css" />
+	<None Include="icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
 	<PackageReference Include="EPiServer.CMS" Version="12.9.0" />
 	<PackageReference Include="EPiServer.Forms" Version="5.4.0" />
 	<PackageReference Include="EPiServer.Forms.Core" Version="5.4.0" />
-  </ItemGroup>
-  <ItemGroup>
-	<None Include="icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>

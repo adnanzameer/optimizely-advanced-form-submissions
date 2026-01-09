@@ -1,7 +1,9 @@
 ﻿using AdvancedFormSubmissions.Models;
+using EPiServer;
 using EPiServer.Forms.Core;
 using EPiServer.Forms.Implementation.Elements;
 using EPiServer.ServiceLocation;
+using System.Globalization;
 
 namespace AdvancedFormSubmissions.Business.PredefinedValueHandler;
 
@@ -17,7 +19,9 @@ public class NumberPredefinedValueHandler : IFormPredefinedValueHandler
 
     public void Clear(ElementBlockBase element)
     {
-        ((NumberElementBlock)element).PredefinedValue = string.Empty;
+        var contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
+        contentLoader.TryGet(element.Content.ContentGuid, new CultureInfo(element.FormElement.Form.Language), out NumberElementBlock elementBlock);
+        ((NumberElementBlock)element).PredefinedValue = elementBlock != null ? elementBlock.PredefinedValue : string.Empty;
     }
 
     public void SetValue(ElementBlockBase element, string value)

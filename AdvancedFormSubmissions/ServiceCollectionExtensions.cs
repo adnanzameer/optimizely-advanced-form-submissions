@@ -15,12 +15,12 @@ public static class ServiceCollectionExtensions
 {
     private static readonly Action<AuthorizationPolicyBuilder> DefaultPolicy = p => p.RequireRole(Roles.Administrators, Roles.WebAdmins, Roles.CmsAdmins);
 
-    public static IServiceCollection AdvancedFormSubmissions(this IServiceCollection services)
+    public static IServiceCollection AddAdvancedFormSubmissions(this IServiceCollection services)
     {
-        return AdvancedFormSubmissions(services, DefaultPolicy);
+        return AddAdvancedFormSubmissions(services, DefaultPolicy);
     }
 
-    public static IServiceCollection AdvancedFormSubmissions(this IServiceCollection services, Action<AuthorizationPolicyBuilder> configurePolicy)
+    public static IServiceCollection AddAdvancedFormSubmissions(this IServiceCollection services, Action<AuthorizationPolicyBuilder> configurePolicy)
     {
         services.AddScoped<IUrlService, UrlBuilder>();
         services.AddScoped<ISubmissionStorage, DdsPermanentStorage>();
