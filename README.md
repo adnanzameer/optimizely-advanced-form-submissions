@@ -37,6 +37,12 @@ The add-on includes specialized handling to make certain data types more useful 
 * **Clickable File Uploads:** For submissions that included a **File Upload Element**, the path to the uploaded file is automatically converted into a **clickable HTML link**. This allows you to immediately open or download the submitted document or image.
 * **Robust Selection Fields:** For `Selection Element Blocks` (like checkboxes, radio buttons, or dropdowns), the system more reliably identifies and displays the selected options during the quick view process, even if the form item's internal value and displayed caption differ.
 
+### 5. View Submission on Page (Form Hydration)
+* **One-Click Page Preview:** Editors and administrators can open a submitted form **directly on the original page** by clicking the **View on page** button in the dashboard.
+* **Pre-Filled Form State:** The page loads with the form **hydrated using the selected submission**, allowing users to see exactly how the form appeared when it was submitted.
+* **Safe Editing Workflow:** Non-encrypted fields can be reviewed or amended where appropriate, while encrypted fields remain blank by design.
+* **Permission Aware:** This feature is only available to authorized users and fully respects Optimizely Forms security and access rules.
+
 ## How to Access the New Dashboard
 
 The new dashboard is accessible from two primary locations in the Optimizely CMS user interface:
