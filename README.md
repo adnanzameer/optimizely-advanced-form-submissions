@@ -37,6 +37,8 @@ The add-on includes specialized handling to make certain data types more useful 
 * **Clickable File Uploads:** For submissions that included a **File Upload Element**, the path to the uploaded file is automatically converted into a **clickable HTML link**. This allows you to immediately open or download the submitted document or image.
 * **Robust Selection Fields:** For `Selection Element Blocks` (like checkboxes, radio buttons, or dropdowns), the system more reliably identifies and displays the selected options during the quick view process, even if the form item's internal value and displayed caption differ.
 
+![Dashboard Form Selection](img/quickview.png)
+
 ### 5. View Submission on Page (Form Hydration)
 * **One-Click Page Preview:** Editors and administrators can open a submitted form **directly on the original page** by clicking the **View on page** button in the dashboard.
 * **Pre-Filled Form State:** The page loads with the form **hydrated using the selected submission**, allowing users to see exactly how the form appeared when it was submitted.
@@ -52,11 +54,15 @@ The most direct way to access the dashboard:
 * Click the **Global Menu** (the 'hamburger' icon) in the upper-left corner of the CMS.
 * Navigate to the new menu item labeled **"Form Submissions"**.
 
+![Dashboard Form Selection](img/dashboard-formselection.png)
+
 ### 2. From the Form Container Block
 For context-specific access to a specific form's data:
 * Navigate to a page containing your **Form Container Block** in the CMS Edit view.
 * Select the **Form Container Block**.
 * In the asset/properties panel, select the custom view named **"Advanced Form Submissions"**. This will open the dashboard pre-filtered to show only submissions for that form.
+
+![CMS Access](img/cms-access.png)
 
 ## Installation
 
@@ -126,6 +132,8 @@ All of the above are protected by the same authorization policy.
 ## Front-end Form Hydration
 
 Form hydration allows editors or administrators to open a form with values prefilled from a previous submission.
+
+![Dashboard Form Selection](img/dashboard-form-selection.png)
 
 ### How hydration is triggered
 
